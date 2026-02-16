@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="640" viewBox="0 0 1100 640">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,4 L0,8 z" fill="#7c3aed"/>
+    </marker>
+    <style>
+      .title { font: bold 30px Arial, sans-serif; fill: #0f172a; }
+      .subtitle { font: 18px Arial, sans-serif; fill: #334155; }
+      .box { fill: #f5f3ff; stroke: #7c3aed; stroke-width: 2; rx: 12; }
+      .text { font: 16px Arial, sans-serif; fill: #0f172a; }
+      .small { font: 14px Arial, sans-serif; fill: #1e293b; }
+      .arrow { stroke: #7c3aed; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .state { fill: #eef2ff; stroke: #4338ca; stroke-width: 2; rx: 12; }
+    </style>
+  </defs>
+
+  <text x="40" y="48" class="title">Evaluator Diagram (Simple Test Flow)</text>
+  <text x="40" y="80" class="subtitle">Test setup: env starts with i = 1, executing statement x = i++ + 5</text>
+
+  <rect x="70" y="130" width="300" height="95" class="box"/>
+  <text x="94" y="168" class="text">execute(AssignStmt)</text>
+  <text x="94" y="194" class="small">ASSIGN: eval RHS then env.set("x", rhs)</text>
+
+  <rect x="430" y="130" width="300" height="95" class="box"/>
+  <text x="454" y="168" class="text">eval(BinaryExpr ADD)</text>
+  <text x="454" y="194" class="small">Evaluate left first, then right</text>
+
+  <rect x="790" y="130" width="260" height="95" class="box"/>
+  <text x="814" y="168" class="text">eval(Postfix i++)</text>
+  <text x="814" y="194" class="small">returns old i, increments env i</text>
+
+  <rect x="150" y="290" width="800" height="140" class="state"/>
+  <text x="180" y="326" class="text">Step-by-step values</text>
+  <text x="180" y="356" class="small">1) left = eval(i++)  => left=1, env.i becomes 2</text>
+  <text x="180" y="384" class="small">2) right = eval(5)   => right=5</text>
+  <text x="180" y="412" class="small">3) add(left,right)   => result=6</text>
+
+  <rect x="360" y="490" width="390" height="95" class="box"/>
+  <text x="386" y="528" class="text">Final environment after execute()</text>
+  <text x="386" y="554" class="small">i = 2, x = 6</text>
+
+  <path d="M370 178 L430 178" class="arrow"/>
+  <path d="M730 178 L790 178" class="arrow"/>
+  <path d="M920 225 L920 290" class="arrow"/>
+  <path d="M550 225 L550 290" class="arrow"/>
+  <path d="M550 430 L550 490" class="arrow"/>
+</svg>

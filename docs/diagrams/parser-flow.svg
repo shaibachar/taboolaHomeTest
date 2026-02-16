@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="620" viewBox="0 0 1100 620">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,4 L0,8 z" fill="#0f766e"/>
+    </marker>
+    <style>
+      .title { font: bold 30px Arial, sans-serif; fill: #0f172a; }
+      .subtitle { font: 18px Arial, sans-serif; fill: #334155; }
+      .box { fill: #ecfeff; stroke: #0f766e; stroke-width: 2; rx: 12; }
+      .text { font: 16px Arial, sans-serif; fill: #0f172a; }
+      .small { font: 14px Arial, sans-serif; fill: #1e293b; }
+      .arrow { stroke: #0f766e; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+      .ast { fill: #f0fdf4; stroke: #15803d; stroke-width: 2; rx: 10; }
+    </style>
+  </defs>
+
+  <text x="40" y="48" class="title">Parser Diagram (Simple Test Flow)</text>
+  <text x="40" y="80" class="subtitle">Tokens: [x, =, i, ++, +, 5, EOF]</text>
+
+  <rect x="60" y="130" width="290" height="90" class="box"/>
+  <text x="84" y="168" class="text">parseStatement()</text>
+  <text x="84" y="194" class="small">consume IDENT, parse assignment op</text>
+
+  <rect x="400" y="130" width="290" height="90" class="box"/>
+  <text x="424" y="168" class="text">expression() → additive()</text>
+  <text x="424" y="194" class="small">calls multiplicative(), unary(), postfix()</text>
+
+  <rect x="740" y="130" width="300" height="90" class="box"/>
+  <text x="764" y="168" class="text">Build expression tree</text>
+  <text x="764" y="194" class="small">left-associative for additive ops</text>
+
+  <rect x="120" y="300" width="860" height="200" class="ast"/>
+  <text x="150" y="336" class="text">AST produced for test line</text>
+  <text x="150" y="370" class="small">AssignStmt(name="x", op=ASSIGN, expr=BinaryExpr(ADD))</text>
+  <text x="180" y="402" class="small">left:  PostfixExpr(expr=VarExpr("i"), op=POST_INC)</text>
+  <text x="180" y="434" class="small">right: LiteralExpr(5)</text>
+  <text x="150" y="468" class="small">consume EOF and return statement.</text>
+
+  <path d="M350 175 L400 175" class="arrow"/>
+  <path d="M690 175 L740 175" class="arrow"/>
+  <path d="M890 220 L890 300" class="arrow"/>
+</svg>

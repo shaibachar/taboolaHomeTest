@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="560" viewBox="0 0 1100 560">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L10,4 L0,8 z" fill="#2563eb"/>
+    </marker>
+    <style>
+      .title { font: bold 30px Arial, sans-serif; fill: #0f172a; }
+      .subtitle { font: 18px Arial, sans-serif; fill: #334155; }
+      .box { fill: #eff6ff; stroke: #1d4ed8; stroke-width: 2; rx: 12; }
+      .decision { fill: #fef3c7; stroke: #d97706; stroke-width: 2; }
+      .text { font: 16px Arial, sans-serif; fill: #0f172a; }
+      .small { font: 14px Arial, sans-serif; fill: #1e293b; }
+      .arrow { stroke: #2563eb; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <text x="40" y="48" class="title">Lexer Diagram (Simple Test Flow)</text>
+  <text x="40" y="80" class="subtitle">Input expression: x = i++ + 5</text>
+
+  <rect x="50" y="130" width="230" height="80" class="box"/>
+  <text x="72" y="168" class="text">Start tokenize()</text>
+  <text x="72" y="192" class="small">pos = 0, tokens = []</text>
+
+  <polygon points="350,130 480,170 350,210 220,170" class="decision"/>
+  <text x="302" y="176" class="text">isAtEnd()?</text>
+
+  <rect x="520" y="130" width="250" height="80" class="box"/>
+  <text x="544" y="164" class="text">Classify next char</text>
+  <text x="544" y="188" class="small">ident / number / operator</text>
+
+  <rect x="810" y="130" width="240" height="80" class="box"/>
+  <text x="838" y="168" class="text">Append token</text>
+  <text x="838" y="192" class="small">and advance position</text>
+
+  <rect x="520" y="260" width="530" height="120" class="box"/>
+  <text x="540" y="292" class="text">Observed token sequence for test input</text>
+  <text x="540" y="322" class="small">IDENT(x) → EQUAL(=) → IDENT(i) → PLUS_PLUS(++) → PLUS(+) → NUMBER(5)</text>
+  <text x="540" y="350" class="small">Then lexer appends EOF at final position.</text>
+
+  <rect x="50" y="430" width="320" height="80" class="box"/>
+  <text x="72" y="468" class="text">Return List&lt;Token&gt;</text>
+  <text x="72" y="492" class="small">[x, =, i, ++, +, 5, EOF]</text>
+
+  <path d="M280 170 L220 170" class="arrow"/>
+  <path d="M480 170 L520 170" class="arrow"/>
+  <path d="M770 170 L810 170" class="arrow"/>
+  <path d="M930 210 L930 260" class="arrow"/>
+  <path d="M520 170 C500 230, 420 250, 350 250 C240 250, 240 220, 240 210" class="arrow"/>
+  <path d="M350 210 C350 320, 230 350, 210 430" class="arrow"/>
+
+  <text x="245" y="120" class="small">No</text>
+  <text x="355" y="120" class="small">Yes → finish</text>
+</svg>
