@@ -7,6 +7,7 @@ arithmetic expressions, and increment/decrement operators with proper precedence
 
 - [Requirements](#requirements)
 - [Constraints](#constraints)
+- [Recursive Descent Parser](#algorithm)
 - [Project Structure](#project-structure)
 - [Features](#features)
 - [Usage](#usage)
@@ -18,6 +19,21 @@ arithmetic expressions, and increment/decrement operators with proper precedence
 - [Known Limitations](#known-limitations)
 
 ---
+
+## Algorithm
+### Recursive Descent Parser
+https://www.youtube.com/watch?v=SToUyjAsaFk
+
+This project uses a recursive descent parser, 
+a top-down parsing technique where each grammar rule is implemented as a dedicated method. 
+The parser consumes tokens from left to right,
+with method structure reflecting operator precedence
+(for example: `expression` -> `additive` -> `multiplicative` -> `unary` -> `postfix` -> `primary`). 
+Each method parses the next-lower-precedence expressions and then combines them while matching the relevant operators,
+which naturally enforces associativity and precedence. In this implementation, the `Parser` 
+class follows that structure, creating AST nodes (`BinaryExpr`, `UnaryExpr`, `PostfixExpr`, `LiteralExpr`, `VarExpr`) 
+as it recognizes tokens, and raising `ParseException` with a coded message when an expected token is missing or invalid.
+
 
 ## Requirements
 
@@ -492,18 +508,6 @@ Simple visual flow diagrams for the pipeline (`x = i++ + 5`) are available in:
 - **Variable lifecycle:** Variables are implicitly created on first assignment and stored in insertion order.
 - **Error diagnostics:** Runtime errors include line number and source-line context for easier troubleshooting.
 
-### Recursive Descent Parser
-https://www.youtube.com/watch?v=SToUyjAsaFk
-
-This project uses a recursive descent parser, 
-a top-down parsing technique where each grammar rule is implemented as a dedicated method. 
-The parser consumes tokens from left to right,
-with method structure reflecting operator precedence
-(for example: `expression` -> `additive` -> `multiplicative` -> `unary` -> `postfix` -> `primary`). 
-Each method parses the next-lower-precedence expressions and then combines them while matching the relevant operators,
-which naturally enforces associativity and precedence. In this implementation, the `Parser` 
-class follows that structure, creating AST nodes (`BinaryExpr`, `UnaryExpr`, `PostfixExpr`, `LiteralExpr`, `VarExpr`) 
-as it recognizes tokens, and raising `ParseException` with a coded message when an expected token is missing or invalid.
 
 ## Known Limitations
 
