@@ -11,7 +11,7 @@ import java.util.logging.Logger;
  * A simple lexer for a calculator language that supports:
  * - Identifiers: [a-zA-Z_][a-zA-Z0-9_]*
  * - Numbers: [0-9]+
- * - Operators: +, -, *, /, %, ++, --, +=, -=, *=, /=
+ * - Operators: +, -, *, /, %, ^, ++, --, +=, -=, *=, /=, ^=
  * - Parentheses: (, )
  */
 public class Lexer {
@@ -93,6 +93,14 @@ public class Lexer {
                         tokens.add(new Token(TokenType.PERCENT_EQUAL, "%=", start));
                     } else {
                         tokens.add(new Token(TokenType.PERCENT, "%", start));
+                    }
+                }
+                case '^' -> {
+                    advance();
+                    if (match('=')) {
+                        tokens.add(new Token(TokenType.CARET_EQUAL, "^=", start));
+                    } else {
+                        tokens.add(new Token(TokenType.CARET, "^", start));
                     }
                 }
                 case '=' -> {

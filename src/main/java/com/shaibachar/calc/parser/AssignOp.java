@@ -6,5 +6,6 @@ public enum AssignOp {
     MINUS_ASSIGN,
     MUL_ASSIGN,
     DIV_ASSIGN,
-    MOD_ASSIGN
+    MOD_ASSIGN,
+    POW_ASSIGN
 }

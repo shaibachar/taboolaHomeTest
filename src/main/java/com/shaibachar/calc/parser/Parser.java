@@ -8,6 +8,7 @@ import com.shaibachar.calc.parser.expr.*;
 import com.shaibachar.calc.parser.stmt.AssignStmt;
 import com.shaibachar.calc.parser.stmt.Stmt;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -26,9 +27,11 @@ public class Parser {
     private static final Logger LOGGER = Logger.getLogger(Parser.class.getName());
     private final List<Token> tokens;
     private int current;
+    private final List<String> errors;
 
     public Parser(List<Token> tokens) {
         this.tokens = tokens;
+        this.errors = new ArrayList<>();
     }
 
     public Stmt parseStatement() {
@@ -61,6 +64,7 @@ public class Parser {
      * - *= (multiplication assignment)
      * - /= (division assignment)
      * - %= (modulus assignment)
+     * - ^= (power assignment)
      * @return the corresponding AssignOp enum value for the parsed operator
      */
     private AssignOp parseAssignOp() {
@@ -82,6 +86,9 @@ public class Parser {
         }
         if (match(TokenType.PERCENT_EQUAL)) {
             return AssignOp.MOD_ASSIGN;
+        }
+        if (match(TokenType.CARET_EQUAL)) {
+            return AssignOp.POW_ASSIGN;
         }
         throw error(peek(), ErrorMessages.PARSE_EXPECTED_ASSIGN_OP);
     }
@@ -123,17 +130,17 @@ public class Parser {
     private Expr multiplicative() {
         LOGGER.fine("Parsing multiplicative expression");
 
-        // Start by parsing the leftmost unary expression
-        Expr expr = unary();
+        // Start by parsing the leftmost unary/power expression
+        Expr expr = unaryAndPower();
 
-        // Then, as long as we see a *, /, or % operator, we consume it and parse the next unary expression on the right
+        // Then, as long as we see a *, /, or % operator, we consume it and parse the next unary/power expression on the right
         while (match(TokenType.STAR, TokenType.SLASH, TokenType.PERCENT)) {
 
             // The operator token determines whether this is a multiplication, division, or modulus operation
             Token operator = previous();
 
-            // Parse the right-hand side unary expression
-            Expr right = unary();
+            // Parse the right-hand side unary/power expression
+            Expr right = unaryAndPower();
 
             // Create a new BinaryExpr node that combines the left and right expressions with the appropriate operator
             BinaryOp op = switch (operator.type()) {
@@ -148,26 +155,40 @@ public class Parser {
     }
 
     /**
-     * Parses a unary expression, which can be a primary expression preceded by an
-     * optional pre-increment, pre-decrement, unary plus, or unary minus operator.
+     * Parses unary and power expressions combined.
+     * Unary operators (++, --, +, -) are parsed first as they have higher precedence.
+     * Power (^) is then parsed with right-associativity (2^3^2 = 2^(3^2) = 512).
      * @return the parsed expression
      */
-    private Expr unary() {
+    private Expr unaryAndPower() {
         LOGGER.fine("Parsing unary expression");
+        // Handle unary prefix operators
         if (match(TokenType.PLUS_PLUS)) {
-            return new UnaryExpr(UnaryOp.PRE_INC, unary());
+            return new UnaryExpr(UnaryOp.PRE_INC, unaryAndPower());
         }
         if (match(TokenType.MINUS_MINUS)) {
-            return new UnaryExpr(UnaryOp.PRE_DEC, unary());
+            return new UnaryExpr(UnaryOp.PRE_DEC, unaryAndPower());
         }
         if (match(TokenType.PLUS)) {
-            return new UnaryExpr(UnaryOp.PLUS, unary());
+            return new UnaryExpr(UnaryOp.PLUS, unaryAndPower());
         }
         if (match(TokenType.MINUS)) {
-            return new UnaryExpr(UnaryOp.MINUS, unary());
+            return new UnaryExpr(UnaryOp.MINUS, unaryAndPower());
         }
-        return postfix();
+
+        // After unary operators, parse postfix expression, then power
+        Expr expr = postfix();
+
+        // Power is right-associative, so we parse and recurse immediately on the right side
+        if (match(TokenType.CARET)) {
+            LOGGER.fine("Parsing power expression");
+            // Recursively parse the right side to get right-associativity
+            Expr right = unaryAndPower();
+            expr = new BinaryExpr(expr, BinaryOp.POW, right);
+        }
+        return expr;
     }
+
 
     /**
      * Parses a postfix expression, which can be a primary expression followed by
@@ -291,6 +312,80 @@ public class Parser {
      */
     private Token previous() {
         return tokens.get(current - 1);
+    }
+
+    /**
+     * Consumes the current token if it matches the expected type, collecting errors instead of throwing immediately.
+     * If the token does not match, records the error and returns a dummy token to allow parsing to continue.
+     * @param type the expected token type
+     * @param message the error message to collect if the token does not match
+     * @return the consumed token if it matches, or a dummy token if it doesn't
+     */
+    private Token consumeWithErrorCollection(TokenType type, String message) {
+        if (check(type)) {
+            return advance();
+        }
+        String errorMsg = message + " at position " + peek().position();
+        this.errors.add(errorMsg);
+        LOGGER.fine("Collected error: " + errorMsg);
+        // Return a dummy token to allow parsing to continue
+        return peek();
+    }
+
+    /**
+     * Parses an assignment operator with error collection.
+     * If an expected assignment operator is not found, collects the error and returns ASSIGN as default.
+     * @return the corresponding AssignOp enum value for the parsed operator
+     */
+    private AssignOp parseAssignOpWithErrorCollection() {
+        LOGGER.fine("Parsing assignment operator");
+        if (match(TokenType.EQUAL)) {
+            return AssignOp.ASSIGN;
+        }
+        if (match(TokenType.PLUS_EQUAL)) {
+            return AssignOp.PLUS_ASSIGN;
+        }
+        if (match(TokenType.MINUS_EQUAL)) {
+            return AssignOp.MINUS_ASSIGN;
+        }
+        if (match(TokenType.STAR_EQUAL)) {
+            return AssignOp.MUL_ASSIGN;
+        }
+        if (match(TokenType.SLASH_EQUAL)) {
+            return AssignOp.DIV_ASSIGN;
+        }
+        if (match(TokenType.PERCENT_EQUAL)) {
+            return AssignOp.MOD_ASSIGN;
+        }
+        if (match(TokenType.CARET_EQUAL)) {
+            return AssignOp.POW_ASSIGN;
+        }
+        String errorMsg = ErrorMessages.PARSE_EXPECTED_ASSIGN_OP + " at position " + peek().position();
+        this.errors.add(errorMsg);
+        LOGGER.fine("Collected error: " + errorMsg);
+        return AssignOp.ASSIGN; // Default to allow parsing to continue
+    }
+
+    /**
+     * Parses an expression with error collection.
+     * Errors encountered during expression parsing are collected rather than thrown.
+     * @return the parsed expression
+     */
+    private Expr expressionWithErrorCollection() {
+        LOGGER.fine("Parsing expression with error collection");
+        try {
+            return expression();
+        } catch (ParseException e) {
+            // Collect the error(s) from the exception
+            for (String err : e.getErrors()) {
+                if (!this.errors.contains(err)) {
+                    this.errors.add(err);
+                }
+            }
+            LOGGER.fine("Collected " + e.getErrorCount() + " error(s) from expression parsing");
+            // Return a dummy literal to allow parsing to continue
+            return new LiteralExpr(0L);
+        }
     }
 
     private ParseException error(Token token, String message) {

@@ -579,8 +579,11 @@ class LexerTest {
 
         @Test
         void caret() {
+            // Caret (^) is now a valid power operator token
             Lexer lexer = new Lexer("^");
-            assertThrows(ParseException.class, lexer::tokenize);
+            var tokens = lexer.tokenize();
+            assertEquals(2, tokens.size()); // CARET and EOF
+            assertEquals(TokenType.CARET, tokens.get(0).type());
         }
 
         @Test
@@ -780,8 +783,14 @@ class LexerTest {
 
         @Test
         void bitwiseXorNotSupported() {
+            // Caret (^) is now a valid power operator token, not bitwise XOR
             Lexer lexer = new Lexer("x ^ y");
-            assertThrows(ParseException.class, lexer::tokenize);
+            var tokens = lexer.tokenize();
+            // Should tokenize as: IDENT, CARET, IDENT, EOF
+            assertEquals(4, tokens.size());
+            assertEquals(TokenType.IDENT, tokens.get(0).type());
+            assertEquals(TokenType.CARET, tokens.get(1).type());
+            assertEquals(TokenType.IDENT, tokens.get(2).type());
         }
 
         @Test
@@ -858,8 +867,14 @@ class LexerTest {
 
         @Test
         void caretNotSupported() {
+            // Caret (^) is now a valid power operator token
             Lexer lexer = new Lexer("x ^ y");
-            assertThrows(ParseException.class, lexer::tokenize);
+            var tokens = lexer.tokenize();
+            // Should tokenize as: IDENT, CARET, IDENT, EOF
+            assertEquals(4, tokens.size());
+            assertEquals(TokenType.IDENT, tokens.get(0).type());
+            assertEquals(TokenType.CARET, tokens.get(1).type());
+            assertEquals(TokenType.IDENT, tokens.get(2).type());
         }
 
         @Test

@@ -243,6 +243,145 @@ Output: (var1=val1, var2=val2, ...)
 
 ---
 
+## Error Handling
+
+### Overview
+
+The calculator provides **comprehensive error handling** with multiple error collection, helpful hints, and severity levels. Errors are detected at three stages:
+
+1. **Lexer** — Invalid characters, malformed literals
+2. **Parser** — Syntax errors, missing operators, unbalanced parentheses
+3. **Evaluator** — Runtime errors, undefined variables, division by zero
+
+### Error Structure
+
+Each error includes:
+- **Error Code** (e.g., `PARSE_001`) — For categorization and searching
+- **Message** — Description of what went wrong
+- **Position** — Character position in input where error occurred
+- **Severity Level** — `ERROR` (🔴) or `WARNING` (🟡)
+- **Hint** — Actionable suggestion to fix the error
+
+### Error Codes
+
+#### Parser Errors (PARSE_XXX)
+
+| Code | Message | Cause | Hint |
+|------|---------|-------|------|
+| PARSE_001 | Expected identifier at statement start | Missing variable name | Start with a variable name (e.g., 'x', 'result') |
+| PARSE_002 | Expected assignment operator | Missing =, +=, -=, etc. | Use an assignment operator: =, +=, -=, *=, /=, %=, or ^= |
+| PARSE_003 | Unexpected token after expression | Extra tokens after complete expression | Check for extra tokens after your expression |
+| PARSE_004 | Invalid multiplicative operator | Wrong operator in calculation | Use valid operators: +, -, *, /, %, or ^ |
+| PARSE_005 | Invalid number literal | Malformed number | Check your number format - ensure it's a valid integer or decimal |
+| PARSE_006 | Expected ')' after expression | Missing closing parenthesis | Make sure every opening '(' has a matching closing ')' |
+| PARSE_007 | Expected expression | Missing operand or expression | Expected a value, variable, or expression (like '5', 'x', or '(2+3)') |
+
+#### Evaluator Errors (EVAL_XXX)
+
+| Code | Message | Cause | Hint |
+|------|---------|-------|------|
+| EVAL_001 | Unsupported statement type | Invalid statement | Check your statement structure |
+| EVAL_002 | Unsupported expression type | Invalid expression | Ensure the expression type is supported |
+| EVAL_003 | Undefined variable | Using undefined variable | Make sure the variable is defined before using it |
+| EVAL_004 | Division by zero | Dividing by zero | Cannot divide by zero - use a non-zero divisor |
+| EVAL_005 | Operand not assignable | Cannot assign to non-variable | Only variables can be assigned with ++/-- |
+
+### Multiple Error Collection
+
+The parser collects **all errors** in a single parse before throwing, allowing users to see all issues at once.
+
+**Example:**
+```
+Input: x
+```
+
+**Output:**
+```
+Found 2 errors:
+  1. 🔴 PARSE_002: Expected assignment operator at position 1
+     Hint: Use an assignment operator: =, +=, -=, *=, /=, %=, or ^=
+  2. 🔴 PARSE_007: Expected expression at position 1
+     Hint: Expected a value, variable, or expression (like '5', 'x', or '(2+3)')
+```
+
+### Error Examples
+
+#### Example 1: Missing Closing Parenthesis
+```
+Input: y = (5 + 3
+Output: 
+  🔴 PARSE_006: Expected ')' after expression at position 10
+  Hint: Make sure every opening '(' has a matching closing ')'
+```
+
+#### Example 2: Invalid Operator Sequence
+```
+Input: x = 5 3
+Output:
+  🔴 PARSE_003: Unexpected token after expression at position 6
+  Hint: Check for extra tokens after your expression
+```
+
+#### Example 3: Division by Zero
+```
+Input: y = 10 / 0
+Output:
+  🔴 EVAL_004: Division by zero
+  Hint: Cannot divide by zero - use a non-zero divisor
+```
+
+#### Example 4: Undefined Variable
+```
+Input: z = x + 5
+Output (if x not defined):
+  🔴 EVAL_003: Undefined variable 'x'
+  Hint: Make sure the variable is defined before using it
+```
+
+### Error Severity Levels
+
+Each error has a severity level:
+
+- **🔴 ERROR** — Critical error that prevents compilation/execution
+  - Parser errors (syntax issues)
+  - Evaluator errors (runtime issues)
+
+- **🟡 WARNING** — Non-critical issue (reserved for future use)
+
+### API for Error Handling
+
+```java
+try {
+    CalculatorApp.execute(lines);
+} catch (ParseException e) {
+    // Check error count
+    if (e.getErrorCount() > 1) {
+        System.out.println("Found " + e.getErrorCount() + " errors:");
+    }
+    
+    // Get all errors
+    for (ParseError error : e.getParseErrors()) {
+        System.out.println("Code: " + error.getCode());
+        System.out.println("Severity: " + error.getSeverity().getName());
+        System.out.println("Message: " + error.getMessage());
+        System.out.println("Position: " + error.getPosition());
+        System.out.println("Hint: " + error.getHint());
+    }
+}
+```
+
+### Error Recovery Strategy
+
+The parser implements **error recovery** by:
+1. Recording the error (instead of throwing immediately)
+2. Using a **dummy value** to continue parsing
+3. Collecting all errors from the parse
+4. Throwing all errors together at the end
+
+This allows users to fix multiple issues in a single edit cycle.
+
+---
+
 ## Usage
 
 ### Compile

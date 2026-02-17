@@ -76,6 +76,7 @@ public class Evaluator {
             case MUL_ASSIGN -> multiply(leftHandSideSnapshot, rightHandSide);
             case DIV_ASSIGN -> divide(leftHandSideSnapshot, rightHandSide);
             case MOD_ASSIGN -> modulo(leftHandSideSnapshot, rightHandSide);
+            case POW_ASSIGN -> power(leftHandSideSnapshot, rightHandSide);
             default -> throw new IllegalStateException(ErrorMessages.evalUnexpectedAssignOp(op));
         };
         env.set(name, result);
@@ -123,6 +124,7 @@ public class Evaluator {
                 case MUL -> multiply(left, right);
                 case DIV -> divide(left, right);
                 case MOD -> modulo(left, right);
+                case POW -> power(left, right);
             };
         }
         throw new EvalException(ErrorMessages.EVAL_UNSUPPORTED_EXPRESSION);
@@ -214,6 +216,11 @@ public class Evaluator {
             return left.doubleValue() * right.doubleValue();
         }
         return left.longValue() * right.longValue();
+    }
+
+    private Number power(Number left, Number right) {
+        LOGGER.fine("Power " + left + " ^ " + right);
+        return Math.pow(left.doubleValue(), right.doubleValue());
     }
 
     private Number negate(Number value) {

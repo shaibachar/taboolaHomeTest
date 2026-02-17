@@ -8,6 +8,7 @@ public enum TokenType {
     STAR("*"),
     SLASH("/"),
     PERCENT("%"),
+    CARET("^"),
     PLUS_PLUS("++"),
     MINUS_MINUS("--"),
     EQUAL("="),
@@ -16,6 +17,7 @@ public enum TokenType {
     STAR_EQUAL("*="),
     SLASH_EQUAL("/="),
     PERCENT_EQUAL("%="),
+    CARET_EQUAL("^="),
     LPAREN("("),
     RPAREN(")"),
     EOF("end of input");
